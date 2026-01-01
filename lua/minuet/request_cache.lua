@@ -2,7 +2,6 @@ local M = {}
 M.__index = M
 
 function M.new(max)
-    max = max or 64
     return setmetatable({
         max   = max,
         map   = {},
@@ -32,7 +31,7 @@ end
 local _instance
 function M.get_instance()
     if not _instance then
-        _instance = M.new(max or 64)
+        _instance = M.new(512)
     end
     return _instance
 end
