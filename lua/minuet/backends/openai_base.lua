@@ -1,6 +1,7 @@
 local M = {}
 local common = require 'minuet.backends.common'
 local utils = require 'minuet.utils'
+local request_cache = require 'minuet.request_cache'
 local Job = require 'plenary.job'
 
 function M.openai_get_text_fn_no_stream(json)
@@ -11,8 +12,19 @@ function M.openai_get_text_fn_stream(json)
     return json.choices[1].delta.content
 end
 
+local function serialize(context)
+    return context.lines_before..context.lines_after
+end
+
 function M.complete_openai_base(options, context, callback)
     local config = require('minuet').config
+
+    cache = request_cache.get_instance()
+    cached_items = cache:get(serialize(context))
+    if cached_items ~= nil then
+        callback(cached_items)
+        return
+    end
 
     common.terminate_all_jobs()
 
@@ -91,6 +103,8 @@ function M.complete_openai_base(options, context, callback)
             items = common.filter_context_sequences_in_items(items, context)
 
             items = utils.remove_spaces(items)
+
+            cache:set(serialize(context), items)
 
             callback(items)
         end),

@@ -1,0 +1,40 @@
+local M = {}
+M.__index = M
+
+function M.new(max)
+    max = max or 64
+    return setmetatable({
+        max   = max,
+        map   = {},
+        queue = {},
+        idx   = 0,
+    }, M)
+end
+
+function M:set(key, value)
+    print(self.idx)
+    self.idx = (self.idx + 1) % self.max
+    -- erase next cache, which will be rewrite
+    local oldKey = self.queue[self.idx]
+    print("old key", oldKey)
+    if oldKey ~= nil then
+        self.map[oldKey] = nil
+    end
+
+    self.queue[self.idx] = key
+    self.map[key] = value
+end
+
+function M:get(key, loader)
+    return self.map[key]
+end
+
+local _instance
+function M.get_instance()
+    if not _instance then
+        _instance = M.new(max or 64)
+    end
+    return _instance
+end
+
+return M
