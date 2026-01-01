@@ -11,11 +11,9 @@ function M.new(max)
 end
 
 function M:set(key, value)
-    print(self.idx)
     self.idx = (self.idx + 1) % self.max
     -- erase next cache, which will be rewrite
     local oldKey = self.queue[self.idx]
-    print("old key", oldKey)
     if oldKey ~= nil then
         self.map[oldKey] = nil
     end
